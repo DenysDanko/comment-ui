@@ -1,28 +1,45 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import * as signalR from '@microsoft/signalr';
-import CommentItem from './components/CommentItem';
 import CommentForm from './components/CommentForm';
-import 'bootstrap-icons/font/bootstrap-icons.css';
+import CommentsList from './components/CommentsList';
+import SortingPanel from './components/SortingPanel';
+import Pagination from './components/Pagination';
+import { buildTree } from './funcs/buildTree';
 
 const API_URL = "https://localhost:7235/api/comments";
 
 function App() {
   const [comments, setComments] = useState([]);
-  const [replyTo, setReplyTo] = useState(null); // { id, name }
+  const [replyTo, setReplyTo] = useState(null);
   const [page, setPage] = useState(1);
   const [totalCount, setTotalCount] = useState(0);
+  const [sortBy, setSortBy] = useState('date');
+  const [isDesc, setIsDesc] = useState(true);
 
   const fetchComments = async () => {
-    const response = await axios.get(`${API_URL}?page=${page}&sortBy=date&desc=true`);
-    setComments(response.data.items);
-    setTotalCount(response.data.totalCount);
+    try {
+      const response = await axios.get(
+        `${API_URL}?page=${page}&sortBy=${sortBy}&desc=${isDesc}`
+      );
+
+      const tree = buildTree(response.data.allItems);
+
+      const pagedRoots = response.data.rootItems.map(root =>
+        tree.find(c => c.id === root.id)
+      );
+
+      setComments(pagedRoots);
+      setTotalCount(response.data.totalCount);
+    } catch (err) {
+      console.error(err);
+    }
   };
+
 
   useEffect(() => {
     fetchComments();
 
-    // SIGNALR: Підключення до хабу
     const connection = new signalR.HubConnectionBuilder()
       .withUrl("https://localhost:7235/commentHub")
       .withAutomaticReconnect()
@@ -30,64 +47,42 @@ function App() {
 
     connection.start().catch(err => console.error("SignalR Error: ", err));
 
-    connection.on("ReceiveComment", (newComment) => {
-      if (!newComment.parentId && page === 1) {
-          fetchComments();
-      } else if (newComment.parentId) {
-          fetchComments();
-      }
-    });
+    connection.on("ReceiveComment", () => fetchComments());
 
     return () => connection.stop();
-  }, [page]);
+  }, [page, sortBy, isDesc]);
+
+  const toggleSort = (field) => {
+    if (sortBy === field) {
+      setIsDesc(!isDesc);
+    } else {
+      setSortBy(field);
+      setIsDesc(true);
+    }
+    setPage(1);
+  };
 
   return (
-    <div className="container mt-5">
-      <h1 className="mb-4 text-center">SPA Comments System</h1>
-      
+    <div className="container mt-5 mb-5" style={{ maxWidth: '800px' }}>
+
       <CommentForm 
         parentId={replyTo?.id} 
         parentName={replyTo?.name} 
         onCancelReply={() => setReplyTo(null)}
-        onSuccess={() => {
-            setReplyTo(null);
-            fetchComments();
-        }}
+        onSuccess={() => { setReplyTo(null); fetchComments(); }}
       />
 
-      <div className="comment-list">
-        {comments.map(c => (
-          <CommentItem 
-            key={c.id} 
-            comment={c} 
-            onReply={(id, name) => {
-                setReplyTo({ id, name });
-                window.scrollTo(0, 0); 
-            }} 
-          />
-        ))}
-      </div>
+      <SortingPanel sortBy={sortBy} isDesc={isDesc} toggleSort={toggleSort} />
 
-      {/* Пагінація */}
-      <div className="mt-4 pb-5 d-flex justify-content-center align-items-center">
-        <button
-          className="btn btn-outline-primary me-3"
-          disabled={page === 1}
-          onClick={() => setPage(page - 1)}
-        >
-          <i className="bi bi-arrow-left-circle"></i>
-        </button>
+      <CommentsList 
+        comments={comments} 
+        onReply={(id, name) => {
+          setReplyTo({id, name});
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+        }} 
+      />
 
-        <span className="fw-bold">Page {page}</span>
-
-        <button
-          className="btn btn-outline-primary ms-3"
-          disabled={page * 25 >= totalCount}
-          onClick={() => setPage(page + 1)}
-        >
-          <i className="bi bi-arrow-right-circle"></i>
-        </button>
-      </div>
+      <Pagination page={page} totalCount={totalCount} setPage={setPage} />
     </div>
   );
 }

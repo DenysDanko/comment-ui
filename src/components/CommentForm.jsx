@@ -77,11 +77,13 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
 
   return (
     <div className="card p-3 mb-4 shadow-sm">
-      <h5>{parentId ? `Answer to ${parentName}` : "Leave a comment"}</h5>
+      <h5 className="fw-bold mb-3">
+        {parentId ? `Reply to ${parentName}` : "Leave a Comment"}
+      </h5>
       <form onSubmit={handleSubmit}>
         <div className="row">
           <div className="col-md-4 mb-2">
-            <input type="text" className="form-control" placeholder="User Name" required
+            <input type="text" className="form-control" placeholder="Name" required
               value={formData.userName} onChange={e => setFormData({...formData, userName: e.target.value})} />
           </div>
           <div className="col-md-4 mb-2">
@@ -89,47 +91,61 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
               value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} />
           </div>
           <div className="col-md-4 mb-2">
-            <input type="url" className="form-control" placeholder="Home Page (URL)"
+            <input type="url" className="form-control" placeholder="Website (URL)"
               value={formData.homePage} onChange={e => setFormData({...formData, homePage: e.target.value})} />
           </div>
         </div>
 
         <div className="mb-2">
           <div className="btn-group btn-group-sm mb-1">
-            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('strong')}>[strong]</button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('i')}>[i]</button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('code')}>[code]</button>
-            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('a')}>[a]</button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('strong')}>
+              <i className="bi bi-type-bold"></i>
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('i')}>
+              <i className="bi bi-type-italic"></i>
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('code')}>
+              <i className="bi bi-code-slash"></i>
+            </button>
+            <button type="button" className="btn btn-outline-secondary" onClick={() => insertTag('a')}>
+              <i className="bi bi-link-45deg"></i>
+            </button>
           </div>
           <textarea ref={textAreaRef} className="form-control" rows="3" required
             value={formData.content} onChange={e => setFormData({...formData, content: e.target.value})}></textarea>
         </div>
 
         <div className="d-flex align-items-center mb-3">
-          <img src={`data:image/png;base64,${captcha.image}`} alt="captcha" className="me-2" />
-          <input type="text" className="form-control w-25" placeholder="Code" required
+          <img src={`data:image/png;base64,${captcha.image}`} alt="captcha" className="me-2 border rounded" />
+          <input type="text" className="form-control w-25" placeholder="Captcha" required
             value={formData.captchaAnswer} onChange={e => setFormData({...formData, captchaAnswer: e.target.value})} />
         </div>
 
         <div className="mb-3">
           <input type="file" className="form-control" onChange={e => setFile(e.target.files[0])} />
-          <small className="text-muted">JPG, PNG, GIF</small>
+          <small className="text-muted">Allowed: JPG, PNG, GIF</small>
         </div>
 
         <div className="d-flex justify-content-between">
           <div>
-            <button type="submit" className="btn btn-primary me-2">Send</button>
+            <button type="submit" className="btn btn-primary me-2">
+              <i className="bi bi-send-fill"></i> Submit
+            </button>
             <button type="button" className="btn btn-secondary" onClick={() => setPreview(!preview)}>
-                {preview ? "Hide preview" : "Preview"}
+              <i className="bi bi-eye-fill"></i> {preview ? "Hide Preview" : "Preview"}
             </button>
           </div>
-          {parentId && <button type="button" className="btn btn-danger" onClick={onCancelReply}>Cancel</button>}
+          {parentId && (
+            <button type="button" className="btn btn-danger" onClick={onCancelReply}>
+              <i className="bi bi-x-circle"></i> Cancel
+            </button>
+          )}
         </div>
       </form>
 
       {preview && (
-        <div className="mt-3 p-2 border bg-light">
-          <h6>Preview</h6>
+        <div className="mt-3 p-2 border bg-light rounded">
+          <h6 className="fw-bold">Preview</h6>
           <div dangerouslySetInnerHTML={{ __html: formData.content }} />
         </div>
       )}
