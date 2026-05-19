@@ -33,9 +33,10 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
     const newErrors = {};
     
     if (!formData.userName.trim()) {
-      newErrors.userName = "User Name is required.";
-    } else if (!/^[a-zA-Z0-9]+$/.test(formData.userName)) {
-      newErrors.userName = "Only Latin letters and numbers are allowed.";
+      newErrors.userName = 'User Name is required.';
+    } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.userName)) {
+      newErrors.userName =
+        'Only Latin letters, numbers and spaces are allowed.';
     }
 
     if (!formData.email.trim()) {

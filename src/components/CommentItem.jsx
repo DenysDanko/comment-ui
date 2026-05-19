@@ -6,6 +6,8 @@ const CommentItem = ({ comment, onReply }) => {
   const isImage = comment.filePath?.match(/\.(jpg|jpeg|png|gif)$/i);
   const BASE_URL = "https://localhost:7235";
 
+  console.log("Image Path:",`${BASE_URL}${comment.filePath}`)
+
   return (
     <div className="card mt-3 shadow-sm">
       <div className="d-flex justify-content-between align-items-center border-bottom bg-body-secondary p-3">
@@ -35,11 +37,12 @@ const CommentItem = ({ comment, onReply }) => {
                 <FsLightbox
                   toggler={toggler}
                   sources={[`${BASE_URL}${comment.filePath}`]}
+                  type="image" // Явно вказуємо тип, щоб бібліотека не викликала .slice() для пошуку розширення
                 />
               </>
             ) : (
               <a href={`${BASE_URL}${comment.filePath}`} target="_blank" rel="noreferrer" 
-                 className="btn btn-sm btn-outline-info d-flex align-items-center gap-2">
+                className="btn btn-sm btn-outline-info d-flex align-items-center gap-2">
                 <i className="bi bi-file-earmark-text"></i> File
               </a>
             )}
