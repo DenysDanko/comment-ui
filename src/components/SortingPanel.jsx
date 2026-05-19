@@ -20,8 +20,8 @@ export default function SortingPanel({ sortBy, isDesc, toggleSort }) {
         <button
           className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 flex-fill ${
             sortBy === 'username'
-              ? 'btn-primary'
-              : 'btn-light border'
+              ? 'btn-dark'
+              : 'btn btn-outline-secondary'
           }`}
           onClick={() => toggleSort('username')}
         >
@@ -33,8 +33,8 @@ export default function SortingPanel({ sortBy, isDesc, toggleSort }) {
         <button
           className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 flex-fill ${
             sortBy === 'email'
-              ? 'btn-primary'
-              : 'btn-light border'
+              ? 'btn-dark'
+              : 'btn btn-outline-secondary'
           }`}
           onClick={() => toggleSort('email')}
         >
@@ -46,8 +46,8 @@ export default function SortingPanel({ sortBy, isDesc, toggleSort }) {
         <button
           className={`btn btn-sm d-flex align-items-center justify-content-center gap-2 flex-fill ${
             sortBy === 'date'
-              ? 'btn-primary'
-              : 'btn-light border'
+              ? 'btn-dark'
+              : 'btn btn-outline-secondary'
           }`}
           onClick={() => toggleSort('date')}
         >
