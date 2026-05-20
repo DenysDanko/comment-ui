@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
+import { validateCommentForm } from '../funcs/validation';
+import { API_ENDPOINTS } from '../funcs/constants';
 
 const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
   const [formData, setFormData] = useState({
@@ -16,11 +18,9 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
   const [errors, setErrors] = useState({});
   const textAreaRef = useRef(null);
 
-  const API_BASE = "https://localhost:7235/api";
-
   const fetchCaptcha = async () => {
     try {
-      const res = await axios.get(`${API_BASE}/captcha`);
+      const res = await axios.get(API_ENDPOINTS.captcha);
       setCaptcha({ id: res.data.captchaId, image: res.data.captchaImage });
     } catch (err) {
       console.error("Failed to fetch captcha");
@@ -30,39 +30,7 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
   useEffect(() => { fetchCaptcha(); }, []);
 
   const validate = () => {
-    const newErrors = {};
-    
-    if (!formData.userName.trim()) {
-      newErrors.userName = 'User Name is required.';
-    } else if (!/^[a-zA-Z0-9\s]+$/.test(formData.userName)) {
-      newErrors.userName =
-        'Only Latin letters, numbers and spaces are allowed.';
-    }
-
-    if (!formData.email.trim()) {
-      newErrors.email = "Email is required.";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) {
-      newErrors.email = "Invalid email format.";
-    }
-
-    if (formData.homePage && !/^(https?:\/\/)?([\da-z.-]+)\.([a-z.]{2,6})([/\w .-]*)*\/?$/.test(formData.homePage)) {
-      newErrors.homePage = "Invalid URL format.";
-    }
-
-    if (!formData.captchaAnswer.trim()) {
-      newErrors.captchaAnswer = "Captcha code is required.";
-    }
-
-    if (!formData.content.trim()) {
-      newErrors.content = "Message content is required.";
-    } else {
-      const allowedTags = ['a', 'code', 'i', 'strong'];
-      const tagRegex = /<(?!\/?(a|code|i|strong)(?=>|\s.*>))\/?.*?>/g;
-      if (tagRegex.test(formData.content)) {
-        newErrors.content = "Only <a>, <code>, <i>, and <strong> tags are allowed.";
-      }
-    }
-
+    const newErrors = validateCommentForm(formData);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -96,7 +64,7 @@ const CommentForm = ({ parentId, parentName, onCancelReply, onSuccess }) => {
     if (file) data.append("File", file);
 
     try {
-      await axios.post(`${API_BASE}/comments`, data);
+      await axios.post(API_ENDPOINTS.comments, data);
       setFormData({ ...formData, content: '', captchaAnswer: '' });
       setFile(null);
       setErrors({});

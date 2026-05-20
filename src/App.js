@@ -6,8 +6,7 @@ import CommentsList from './components/CommentsList';
 import SortingPanel from './components/SortingPanel';
 import Pagination from './components/Pagination';
 import { buildTree } from './funcs/buildTree';
-
-const API_URL = "https://localhost:7235/api/comments";
+import { API_ENDPOINTS } from './funcs/constants';
 
 function App() {
   const [comments, setComments] = useState([]);
@@ -20,7 +19,7 @@ function App() {
   const fetchComments = async () => {
     try {
       const response = await axios.get(
-        `${API_URL}?page=${page}&sortBy=${sortBy}&desc=${isDesc}`
+        `${API_ENDPOINTS.comments}?page=${page}&sortBy=${sortBy}&desc=${isDesc}`
       );
 
       const tree = buildTree(response.data.allItems);
@@ -41,7 +40,7 @@ function App() {
     fetchComments();
 
     const connection = new signalR.HubConnectionBuilder()
-      .withUrl("https://localhost:7235/commentHub")
+      .withUrl(API_ENDPOINTS.hub)
       .withAutomaticReconnect()
       .build();
 

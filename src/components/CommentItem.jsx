@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
 import FsLightbox from 'fslightbox-react';
+import { API_BASE_URL } from '../funcs/constants';
 
 const CommentItem = ({ comment, onReply }) => {
   const [toggler, setToggler] = useState(false);
   const isImage = comment.filePath?.match(/\.(jpg|jpeg|png|gif)$/i);
-  const BASE_URL = "https://localhost:7235";
 
-  console.log("Image Path:",`${BASE_URL}${comment.filePath}`)
+  console.log("Image Path:",`${API_BASE_URL}${comment.filePath}`)
 
   return (
     <div className="card mt-3 shadow-sm">
@@ -28,7 +28,7 @@ const CommentItem = ({ comment, onReply }) => {
             {isImage ? (
               <>
                 <img 
-                  src={`${BASE_URL}${comment.filePath}`} 
+                  src={`${API_BASE_URL}${comment.filePath}`} 
                   alt="attachment" 
                   className="img-thumbnail" 
                   style={{ maxWidth: '150px', cursor: 'pointer' }}
@@ -36,15 +36,20 @@ const CommentItem = ({ comment, onReply }) => {
                 />
                 <FsLightbox
                   toggler={toggler}
-                  sources={[`${BASE_URL}${comment.filePath}`]}
-                  type="image" // Явно вказуємо тип, щоб бібліотека не викликала .slice() для пошуку розширення
+                  sources={[`${API_BASE_URL}${comment.filePath}`]}
+                  type="image"
                 />
               </>
             ) : (
-              <a href={`${BASE_URL}${comment.filePath}`} target="_blank" rel="noreferrer" 
-                className="btn btn-sm btn-outline-info d-flex align-items-center gap-2">
-                <i className="bi bi-file-earmark-text"></i> File
-              </a>
+                  <a
+                    href={`${API_BASE_URL}${comment.filePath}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn btn-lg btn-outline-info"
+                    title="Open file"
+                  >
+                    <i className="bi bi-file-earmark-text"></i>
+                  </a>
             )}
           </div>
         )}
